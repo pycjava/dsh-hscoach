@@ -1,8 +1,8 @@
 /**
  * 对拍验收（Q16 硬门槛）：TS 确定性核心 vs Python 黄金快照逐字段比对。
  *
- * 黄金由 tools/gen_hscoach_golden.py 用【现有 Python 实现】生成：
- *     python tools/gen_hscoach_golden.py
+ * 黄金快照为迁移期由 Python 实现（已删除）生成的冻结基准：
+ * TS 核心自此成为唯一事实源，本测试作为行为回归钉。
  * 两份 fixture：外服标准日志（15 触发回合）+ 国服格式双局日志
  * （含 PowerTaskList 重复 CREATE_GAME、中文战网昵称映射等坑）。
  */
@@ -34,7 +34,7 @@ interface GoldenFile {
   game_results: string[];
 }
 
-const db = new CardDatabase([join(HERE, "..", "..", "hscoach", "data")]);
+const db = new CardDatabase([join(HERE, "..", "data")]);
 
 /** 与黄金生成器完全一致的管线（批处理边界逐行对齐）。 */
 function runPipeline(lines: string[]) {

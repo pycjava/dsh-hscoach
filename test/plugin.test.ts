@@ -15,7 +15,7 @@ import { CardDatabase } from "../src/core/cards.js";
 import type { Advice } from "../src/core/trigger.js";
 import { StubContext } from "./stubs/cordis.js";
 
-const db = new CardDatabase([join(import.meta.dirname, "..", "..", "hscoach", "data")]);
+const db = new CardDatabase([join(import.meta.dirname, "..", "data")]);
 const fixtureLines = () =>
   readFileSync(join(import.meta.dirname, "fixtures", "friendly_player_id_is_1.power.log"), "utf-8")
     .split(/\r?\n/)

@@ -51,11 +51,10 @@ interface RawCard {
   set?: string;
 }
 
-/** 本包 data/ → 仓库 hscoach/data/ 两级解析（自包含优先，monorepo 兜底）。 */
+/** 卡库数据目录：随插件分发的 data/（HearthstoneJSON 简中全卡 + 收集卡）。 */
 export function defaultDataDirs(): string[] {
   const pkgDir = dirname(fileURLToPath(import.meta.url)); // …/lib/core 或 …/src/core
-  const root = resolve(pkgDir, "..", "..");
-  return [join(root, "data"), resolve(root, "..", "hscoach", "data")];
+  return [join(resolve(pkgDir, "..", ".."), "data")];
 }
 
 export class CardDatabase {
