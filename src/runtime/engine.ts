@@ -68,7 +68,8 @@ export class CoachEngine {
   private readonly publishDir: string;
   private readonly db: CardDatabase;
   private readonly provider: AdviceProvider;
-  private readonly coachMode: string;
+  /** 教练模式（/hscoach mode 运行时可切）。 */
+  coachMode: string;
   private readonly stateThrottleMs: number;
   private readonly onEvent?: (event: EngineEvent) => void;
 
@@ -82,6 +83,12 @@ export class CoachEngine {
   private lastStateAt = 0;
   /** latest-wins 代数。 */
   private generation = 0;
+  /** 批处理保序队列（tail 逐批调用；并发调用在此串行化）。 */
+  private queue: Promise<void> = Promise.resolve();
+  /** 在途建议（fire-and-forget；idle() 等待全部落定）。 */
+  private readonly pendingAdvice = new Set<Promise<void>>();
+  /** 发布段串行链：advice.json 的 rename 顺序 = 提交代数顺序。 */
+  private publishChain: Promise<void> = Promise.resolve();
 
   constructor(options: CoachEngineOptions) {
     this.publishDir = options.publishDir;
@@ -100,8 +107,21 @@ export class CoachEngine {
     return this.friendlyPlayerId;
   }
 
-  /** tail 回调：喂入一批新行。 */
-  async processLines(lines: string[]): Promise<void> {
+  /** 喂入一批新行；按队列顺序处理（不阻塞在 LLM 上）。 */
+  processLines(lines: string[]): Promise<void> {
+    this.queue = this.queue.then(() => this.processLinesInner(lines));
+    return this.queue;
+  }
+
+  /** 等待批处理与全部在途建议落定（测试/优雅退出用）。 */
+  async idle(): Promise<void> {
+    await this.queue;
+    while (this.pendingAdvice.size > 0) {
+      await Promise.allSettled([...this.pendingAdvice]);
+    }
+  }
+
+  private async processLinesInner(lines: string[]): Promise<void> {
     for (const line of lines) {
       this.batch.push(line);
       if (isCreateGameLine(line)) {
@@ -167,7 +187,20 @@ export class CoachEngine {
       return;
     }
     this.lastTriggeredTurn = snapshot.turn;
-    await this.submitAdvice(snapshot);
+    // 慢路径 fire-and-forget（Python AdviceDispatcher 同构）：LLM 慢
+    // 不反噬日志读取；发布前经代数校验实现 latest-wins。
+    const run = this.submitAdvice(snapshot)
+      .catch((error) => {
+        this.onEvent?.({
+          type: "advice-degraded",
+          turn: snapshot.turn,
+          reason: String(error instanceof Error ? error.message : error),
+        });
+      })
+      .finally(() => {
+        this.pendingAdvice.delete(run);
+      });
+    this.pendingAdvice.add(run);
   }
 
   /** 解析行流 → 校准友方 id → 序列化（返回 null = 无可解析对局）。 */
@@ -191,34 +224,63 @@ export class CoachEngine {
     }
   }
 
-  /** 生成 + 发布建议（latest-wins：提交即占位，发布前校验代数）。 */
+  /** 生成 + 发布建议（latest-wins：提交即占位，发布前校验代数；失败降级）。 */
   private async submitAdvice(snapshot: GameSnapshot): Promise<void> {
     const generation = ++this.generation;
     const turn = snapshot.turn;
+    const start = Date.now();
     const lethal = safeLethal(snapshot, this.friendlyPlayerId);
 
-    const advice = await this.provider.generate({
-      snapshot,
-      friendlyPlayerId: this.friendlyPlayerId,
-      lethal,
-      coachMode: this.coachMode,
-      generation,
-    });
-
-    if (generation !== this.generation) {
-      this.onEvent?.({ type: "advice-degraded", turn, reason: "已被更新的回合覆盖（latest-wins）" });
+    let advice: Advice;
+    try {
+      advice = await this.provider.generate({
+        snapshot,
+        friendlyPlayerId: this.friendlyPlayerId,
+        lethal,
+        coachMode: this.coachMode,
+        generation,
+      });
+    } catch (error) {
+      // Q14a 降级：优先回显上一回合建议，其次诚实占位（发布同样串行化）
+      const fallback: Advice = this.lastAdvice
+        ? { ...this.lastAdvice, degraded: true }
+        : { ...degradedPlaceholder(String(error)) };
+      fallback.latency_ms = Date.now() - start;
+      const publishTask = this.publishChain.then(async () => {
+        if (generation !== this.generation) return;
+        this.lastAdvice = fallback;
+        await publishAdvice(this.publishDir, fallback, turn);
+        this.onEvent?.({
+          type: "advice-degraded",
+          turn,
+          reason: `建议生成失败：${String(error instanceof Error ? error.message : error)}`,
+        });
+      });
+      this.publishChain = publishTask.catch(() => {});
+      await publishTask;
       return;
     }
-    const final: Advice = advice.degraded ? advice : { ...advice, lethal: lethal?.lethal ?? false };
-    this.lastAdvice = final;
-    await publishAdvice(this.publishDir, final, turn);
-    this.onEvent?.({
-      type: "advice-published",
-      turn,
-      headline: final.headline,
-      degraded: final.degraded,
-      latencyMs: final.latency_ms,
+
+    const final: Advice = { ...advice, lethal: lethal?.lethal ?? false };
+    // 发布段串行化：并发发布时保证"新建议后发布"（rename 顺序 = 代数
+    // 顺序），advice.json 永不被更旧的建议覆盖。
+    const publishTask = this.publishChain.then(async () => {
+      if (generation !== this.generation) {
+        this.onEvent?.({ type: "advice-degraded", turn, reason: "已被更新的回合覆盖（latest-wins）" });
+        return;
+      }
+      this.lastAdvice = final;
+      await publishAdvice(this.publishDir, final, turn);
+      this.onEvent?.({
+        type: "advice-published",
+        turn,
+        headline: final.headline,
+        degraded: final.degraded,
+        latencyMs: final.latency_ms,
+      });
     });
+    this.publishChain = publishTask.catch(() => {});
+    await publishTask;
   }
 
   /** 手动"再想想"：基于当前最新局面重新生成（不要求 turn 递增）。 */
@@ -264,4 +326,18 @@ function safeLethal(snapshot: GameSnapshot, friendlyPlayerId: number): LethalChe
     // 斩杀计算失败不阻断建议生成（Python 侧 lethal=None 同义）
     return null;
   }
+}
+
+function degradedPlaceholder(reason: string): Advice {
+  return {
+    kind: "uncertain",
+    headline: "（教练暂时无法响应）",
+    why: `建议生成失败：${reason}`,
+    warning: "请稍后重试，或手动判断局面",
+    steps: [],
+    alternatives: [],
+    latency_ms: 0,
+    degraded: true,
+    lethal: false,
+  };
 }
