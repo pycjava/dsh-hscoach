@@ -29,7 +29,7 @@ export const Config = z.object({
   /** 发布目录；空串 = %LOCALAPPDATA%\NTEToolbox\hscoach（与 Tauri 契约一致）。 */
   publishDir: z.string().default(""),
   /** 友方玩家 id；不填 = 日志自动校准（推荐）。 */
-  friendlyPlayerId: z.number().step(1).min(1).max(2).optional(),
+  friendlyPlayerId: z.number().step(1).min(1).max(2),
   coachMode: z.string().default(DEFAULT_COACH_MODE),
   /** 模型路由覆盖；空串 = 跟随宿主 agent-default-model。 */
   provider: z.string().default(""),
@@ -83,7 +83,8 @@ export const realRuntimeDeps: RuntimeDeps = {
 };
 
 export class HsCoachService extends Service {
-  static inject = ["agents", "agentDefaultModel"];
+  /** timer：ctx.setInterval（cordis-plugin-timer）需显式声明注入。 */
+  static inject = ["agents", "agentDefaultModel", "timer"];
   static Config = Config;
 
   private readonly cfg: HsCoachPluginConfig;
@@ -318,7 +319,6 @@ export class HsCoachService extends Service {
   }
 }
 
-/** cordis 插件入口。 */
-export function apply(ctx: Context, config: HsCoachPluginConfig): void {
-  ctx.plugin(HsCoachService, config);
-}
+/** cordis 插件导出形态与 dsh-git-tree 参考插件一致：
+ * loader 取 default 导出（Service 类是函数，cordis registry 直接接受）。 */
+export default HsCoachService;

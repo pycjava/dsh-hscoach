@@ -16,7 +16,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
-    "check": "tsc --noEmit -p tsconfig.json"
+    "check": "tsc --noEmit -p tsconfig.json",
+    "link-host": "node scripts/link-host.mjs"
   },
   "engines": {
     "node": ">=22"
