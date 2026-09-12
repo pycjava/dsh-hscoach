@@ -46,7 +46,7 @@ pnpm test
     - id: dsh-hscoach
       name: dsh-hscoach
       config:
-        publishDir: ""            # 空 = %LOCALAPPDATA%\NTEToolbox\hscoach（与 Tauri 契约一致）
+        publishDir: ""            # 空 = %LOCALAPPDATA%\com.ntetoolbox.client\hscoach（Tauri identifier 目录，与客户端契约一致；可用 DSH_HSCOACH_PUBLISH_DIR 覆盖）
         friendlyPlayerId: 1       # 不填 = 日志自动校准（推荐）
         coachMode: teach          # teach / compete / silent
         provider: ""              # 空 = 跟随宿主 agent-default-model

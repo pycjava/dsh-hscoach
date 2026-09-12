@@ -56,11 +56,17 @@ export interface HsCoachPluginConfig {
   autoStart: boolean;
 }
 
-/** 解析发布目录默认值（与 Tauri hscoach_bridge 的 publish-dir 契约一致）。 */
+/**
+ * 解析发布目录默认值。必须与 Tauri hscoach_bridge 的 `app_local_data_dir()/
+ * hscoach`（identifier = com.ntetoolbox.client）一致，否则客户端轮询不到
+ * 插件写的 advice.json。优先级：显式配置 > 环境变量 > Tauri 目录。
+ */
 export function resolvePublishDir(configured: string): string {
   if (configured) return configured;
+  const env = process.env.DSH_HSCOACH_PUBLISH_DIR;
+  if (env) return env;
   const local = process.env.LOCALAPPDATA ?? join(homedir(), "AppData", "Local");
-  return join(local, "NTEToolbox", "hscoach");
+  return join(local, "com.ntetoolbox.client", "hscoach");
 }
 
 /**
