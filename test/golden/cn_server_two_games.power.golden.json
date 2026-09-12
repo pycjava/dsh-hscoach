@@ -1,0 +1,1140 @@
+{
+ "fixture": "cn_server_two_games.power.log",
+ "friendly_player_id": 1,
+ "triggered_turns": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6
+ ],
+ "turns": [
+  {
+   "turn": 1,
+   "friendly_player_id": 1,
+   "snapshot": {
+    "turn": 1,
+    "current_player_id": 2,
+    "players": {
+     "1": {
+      "name": "玩家1",
+      "health": 30,
+      "armor": 0,
+      "mana": 0,
+      "max_mana": 10,
+      "hand": [],
+      "board": [
+       {
+        "card_id": "HERO_08",
+        "name": "吉安娜·普罗德摩尔",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_034",
+        "name": "CS2_034",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       }
+      ],
+      "deck_count": 30,
+      "fatigue": 0,
+      "played_cards": [],
+      "secrets": 0,
+      "possible_secrets": []
+     },
+     "2": {
+      "name": "玩家2",
+      "health": 30,
+      "armor": 0,
+      "mana": 0,
+      "max_mana": 10,
+      "hand": {
+       "count": 0
+      },
+      "board": [
+       {
+        "card_id": "HERO_04",
+        "name": "乌瑟尔·光明使者",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO",
+        "card_class": "PALADIN"
+       },
+       {
+        "card_id": "CS2_101",
+        "name": "CS2_101",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       }
+      ],
+      "deck_count": 30,
+      "fatigue": 0,
+      "played_cards": [],
+      "secrets": 0,
+      "possible_secrets": []
+     }
+    }
+   },
+   "lethal": {
+    "available_damage": 0,
+    "lethal": false,
+    "detail": [],
+    "deficit": 0,
+    "taunt_blocked": false,
+    "taunt_cost": 0,
+    "opponent_fatigue_damage": null,
+    "summary": "本回合无确定直接伤害（场攻 0）。"
+   }
+  },
+  {
+   "turn": 2,
+   "friendly_player_id": 1,
+   "snapshot": {
+    "turn": 2,
+    "current_player_id": 2,
+    "players": {
+     "1": {
+      "name": "玩家1",
+      "health": 30,
+      "armor": 0,
+      "mana": 1,
+      "max_mana": 10,
+      "hand": [
+       {
+        "card_id": "LOOT_108",
+        "name": "艾露尼斯",
+        "cost": 6,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "在你的回合结束时，抽三张牌。",
+        "damaged": null,
+        "card_type": "WEAPON",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "EX1_612",
+        "name": "肯瑞托法师",
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "flags": [],
+        "text": "战吼：\n在本回合中，你使用的下一个奥秘的法力值消耗为（0）点。",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_023",
+        "name": "奥术智慧",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抽两张牌。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_023",
+        "name": "奥术智慧",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抽两张牌。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       }
+      ],
+      "board": [
+       {
+        "card_id": "HERO_08",
+        "name": "吉安娜·普罗德摩尔",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_034",
+        "name": "CS2_034",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       },
+       {
+        "card_id": "GAME_004",
+        "name": "暂离",
+        "cost": null,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "你的回合时间减少。",
+        "damaged": null,
+        "card_type": "ENCHANTMENT",
+        "card_class": "NEUTRAL"
+       }
+      ],
+      "deck_count": 26,
+      "fatigue": 0,
+      "played_cards": [],
+      "secrets": 0,
+      "possible_secrets": []
+     },
+     "2": {
+      "name": "玩家2",
+      "health": 30,
+      "armor": 0,
+      "mana": 0,
+      "max_mana": 10,
+      "hand": {
+       "count": 5
+      },
+      "board": [
+       {
+        "card_id": "HERO_06",
+        "name": "玛法里奥·怒风",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO",
+        "card_class": "DRUID"
+       },
+       {
+        "card_id": "CS2_017",
+        "name": "CS2_017",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       }
+      ],
+      "deck_count": 26,
+      "fatigue": 0,
+      "played_cards": [],
+      "secrets": 0,
+      "possible_secrets": []
+     }
+    }
+   },
+   "lethal": {
+    "available_damage": 0,
+    "lethal": false,
+    "detail": [],
+    "deficit": 0,
+    "taunt_blocked": false,
+    "taunt_cost": 0,
+    "opponent_fatigue_damage": null,
+    "summary": "本回合无确定直接伤害（场攻 0）。"
+   }
+  },
+  {
+   "turn": 3,
+   "friendly_player_id": 1,
+   "snapshot": {
+    "turn": 3,
+    "current_player_id": 1,
+    "players": {
+     "1": {
+      "name": "玩家1",
+      "health": 30,
+      "armor": 0,
+      "mana": 1,
+      "max_mana": 10,
+      "hand": [
+       {
+        "card_id": "LOOT_108",
+        "name": "艾露尼斯",
+        "cost": 6,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "在你的回合结束时，抽三张牌。",
+        "damaged": null,
+        "card_type": "WEAPON",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "EX1_612",
+        "name": "肯瑞托法师",
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "flags": [],
+        "text": "战吼：\n在本回合中，你使用的下一个奥秘的法力值消耗为（0）点。",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_023",
+        "name": "奥术智慧",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抽两张牌。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_023",
+        "name": "奥术智慧",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抽两张牌。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       }
+      ],
+      "board": [
+       {
+        "card_id": "HERO_08",
+        "name": "吉安娜·普罗德摩尔",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_034",
+        "name": "CS2_034",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       },
+       {
+        "card_id": "GAME_004",
+        "name": "暂离",
+        "cost": null,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "你的回合时间减少。",
+        "damaged": null,
+        "card_type": "ENCHANTMENT",
+        "card_class": "NEUTRAL"
+       }
+      ],
+      "deck_count": 26,
+      "fatigue": 0,
+      "played_cards": [],
+      "secrets": 0,
+      "possible_secrets": []
+     },
+     "2": {
+      "name": "玩家2",
+      "health": 30,
+      "armor": 0,
+      "mana": 1,
+      "max_mana": 10,
+      "hand": {
+       "count": 5
+      },
+      "board": [
+       {
+        "card_id": "HERO_06",
+        "name": "玛法里奥·怒风",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO",
+        "card_class": "DRUID"
+       },
+       {
+        "card_id": "CS2_017",
+        "name": "CS2_017",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       },
+       {
+        "card_id": "AT_037t",
+        "name": "树苗",
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "flags": [
+         "已尽"
+        ],
+        "text": "",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "DRUID"
+       },
+       {
+        "card_id": "AT_037t",
+        "name": "树苗",
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "flags": [
+         "已尽"
+        ],
+        "text": "",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "DRUID"
+       }
+      ],
+      "deck_count": 25,
+      "fatigue": 0,
+      "played_cards": [
+       {
+        "card_id": "AT_037",
+        "name": "活体根须",
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抉择：造成\n2点伤害；或者召唤两个1/1的树苗。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "DRUID"
+       }
+      ],
+      "secrets": 0,
+      "possible_secrets": []
+     }
+    }
+   },
+   "lethal": {
+    "available_damage": 0,
+    "lethal": false,
+    "detail": [],
+    "deficit": 30,
+    "taunt_blocked": false,
+    "taunt_cost": 0,
+    "opponent_fatigue_damage": null,
+    "summary": "本回合无确定直接伤害（场攻 0）。"
+   }
+  },
+  {
+   "turn": 4,
+   "friendly_player_id": 1,
+   "snapshot": {
+    "turn": 4,
+    "current_player_id": 2,
+    "players": {
+     "1": {
+      "name": "玩家1",
+      "health": 30,
+      "armor": 0,
+      "mana": 2,
+      "max_mana": 10,
+      "hand": [
+       {
+        "card_id": "EX1_287",
+        "name": "法术反制",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "奥秘：当你的对手施放一个法术时，反制该法术。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "LOOT_108",
+        "name": "艾露尼斯",
+        "cost": 6,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "在你的回合结束时，抽三张牌。",
+        "damaged": null,
+        "card_type": "WEAPON",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "EX1_612",
+        "name": "肯瑞托法师",
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "flags": [],
+        "text": "战吼：\n在本回合中，你使用的下一个奥秘的法力值消耗为（0）点。",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_023",
+        "name": "奥术智慧",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抽两张牌。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_023",
+        "name": "奥术智慧",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抽两张牌。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       }
+      ],
+      "board": [
+       {
+        "card_id": "HERO_08",
+        "name": "吉安娜·普罗德摩尔",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_034",
+        "name": "CS2_034",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [
+         "已尽"
+        ],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       }
+      ],
+      "deck_count": 25,
+      "fatigue": 0,
+      "played_cards": [
+       {
+        "card_id": "GAME_004",
+        "name": "暂离",
+        "cost": null,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "你的回合时间减少。",
+        "damaged": null,
+        "card_type": "ENCHANTMENT",
+        "card_class": "NEUTRAL"
+       }
+      ],
+      "secrets": 0,
+      "possible_secrets": []
+     },
+     "2": {
+      "name": "玩家2",
+      "health": 30,
+      "armor": 0,
+      "mana": 1,
+      "max_mana": 10,
+      "hand": {
+       "count": 5
+      },
+      "board": [
+       {
+        "card_id": "HERO_06",
+        "name": "玛法里奥·怒风",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO",
+        "card_class": "DRUID"
+       },
+       {
+        "card_id": "CS2_017",
+        "name": "CS2_017",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       },
+       {
+        "card_id": "AT_037t",
+        "name": "树苗",
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "flags": [
+         "已尽"
+        ],
+        "text": "",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "DRUID"
+       }
+      ],
+      "deck_count": 25,
+      "fatigue": 0,
+      "played_cards": [
+       {
+        "card_id": "AT_037",
+        "name": "活体根须",
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抉择：造成\n2点伤害；或者召唤两个1/1的树苗。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "DRUID"
+       },
+       {
+        "card_id": "AT_037t",
+        "name": "树苗",
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "DRUID"
+       }
+      ],
+      "secrets": 0,
+      "possible_secrets": []
+     }
+    }
+   },
+   "lethal": {
+    "available_damage": 0,
+    "lethal": false,
+    "detail": [],
+    "deficit": 0,
+    "taunt_blocked": false,
+    "taunt_cost": 0,
+    "opponent_fatigue_damage": null,
+    "summary": "本回合无确定直接伤害（场攻 0）。"
+   }
+  },
+  {
+   "turn": 5,
+   "friendly_player_id": 1,
+   "snapshot": {
+    "turn": 5,
+    "current_player_id": 1,
+    "players": {
+     "1": {
+      "name": "玩家1",
+      "health": 29,
+      "armor": 0,
+      "mana": 2,
+      "max_mana": 10,
+      "hand": [
+       {
+        "card_id": "EX1_287",
+        "name": "法术反制",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "奥秘：当你的对手施放一个法术时，反制该法术。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "LOOT_108",
+        "name": "艾露尼斯",
+        "cost": 6,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "在你的回合结束时，抽三张牌。",
+        "damaged": null,
+        "card_type": "WEAPON",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "EX1_612",
+        "name": "肯瑞托法师",
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "flags": [],
+        "text": "战吼：\n在本回合中，你使用的下一个奥秘的法力值消耗为（0）点。",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_023",
+        "name": "奥术智慧",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抽两张牌。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_023",
+        "name": "奥术智慧",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抽两张牌。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       }
+      ],
+      "board": [
+       {
+        "card_id": "HERO_08",
+        "name": "吉安娜·普罗德摩尔",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": 1,
+        "card_type": "HERO",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_034",
+        "name": "CS2_034",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [
+         "已尽"
+        ],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       }
+      ],
+      "deck_count": 25,
+      "fatigue": 0,
+      "played_cards": [
+       {
+        "card_id": "GAME_004",
+        "name": "暂离",
+        "cost": null,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "你的回合时间减少。",
+        "damaged": null,
+        "card_type": "ENCHANTMENT",
+        "card_class": "NEUTRAL"
+       }
+      ],
+      "secrets": 0,
+      "possible_secrets": []
+     },
+     "2": {
+      "name": "玩家2",
+      "health": 30,
+      "armor": 0,
+      "mana": 2,
+      "max_mana": 10,
+      "hand": {
+       "count": 4
+      },
+      "board": [
+       {
+        "card_id": "GVG_104",
+        "name": "大胖",
+        "cost": 3,
+        "attack": 2,
+        "health": 3,
+        "flags": [
+         "已尽"
+        ],
+        "text": "每当你使用一张攻击力为1的随从牌，便使其获得+2/+2。",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "NEUTRAL"
+       },
+       {
+        "card_id": "HERO_06",
+        "name": "玛法里奥·怒风",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO",
+        "card_class": "DRUID"
+       },
+       {
+        "card_id": "CS2_017",
+        "name": "CS2_017",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       },
+       {
+        "card_id": "AT_037t",
+        "name": "树苗",
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "flags": [
+         "已尽"
+        ],
+        "text": "",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "DRUID"
+       }
+      ],
+      "deck_count": 24,
+      "fatigue": 0,
+      "played_cards": [
+       {
+        "card_id": "AT_037",
+        "name": "活体根须",
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抉择：造成\n2点伤害；或者召唤两个1/1的树苗。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "DRUID"
+       },
+       {
+        "card_id": "GAME_005",
+        "name": "幸运币",
+        "cost": null,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "在本回合中，获得一个\n法力水晶。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "NEUTRAL"
+       },
+       {
+        "card_id": "AT_037t",
+        "name": "树苗",
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "DRUID"
+       }
+      ],
+      "secrets": 0,
+      "possible_secrets": []
+     }
+    }
+   },
+   "lethal": {
+    "available_damage": 0,
+    "lethal": false,
+    "detail": [],
+    "deficit": 30,
+    "taunt_blocked": false,
+    "taunt_cost": 0,
+    "opponent_fatigue_damage": null,
+    "summary": "本回合无确定直接伤害（场攻 0）。"
+   }
+  },
+  {
+   "turn": 6,
+   "friendly_player_id": 1,
+   "snapshot": {
+    "turn": 6,
+    "current_player_id": 1,
+    "players": {
+     "1": {
+      "name": "玩家1",
+      "health": 29,
+      "armor": 0,
+      "mana": 2,
+      "max_mana": 10,
+      "hand": [
+       {
+        "card_id": "EX1_612",
+        "name": "肯瑞托法师",
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "flags": [],
+        "text": "战吼：\n在本回合中，你使用的下一个奥秘的法力值消耗为（0）点。",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_023",
+        "name": "奥术智慧",
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "抽两张牌。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "KAR_076",
+        "name": "火焰之地传送门",
+        "cost": 7,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "造成\n6点伤害。随机召唤一个法力值消耗为（6）的随从。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "EX1_612",
+        "name": "肯瑞托法师",
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "flags": [],
+        "text": "战吼：\n在本回合中，你使用的下一个奥秘的法力值消耗为（0）点。",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "GAME_005",
+        "name": "幸运币",
+        "cost": null,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "在本回合中，获得一个\n法力水晶。",
+        "damaged": null,
+        "card_type": "SPELL",
+        "card_class": "NEUTRAL"
+       }
+      ],
+      "board": [
+       {
+        "card_id": "HERO_08",
+        "name": "吉安娜·普罗德摩尔",
+        "cost": null,
+        "attack": null,
+        "health": 30,
+        "flags": [],
+        "text": "",
+        "damaged": 1,
+        "card_type": "HERO",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "CS2_034",
+        "name": "CS2_034",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [
+         "已尽"
+        ],
+        "text": "",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": null
+       }
+      ],
+      "deck_count": 24,
+      "fatigue": 0,
+      "played_cards": [
+       {
+        "card_id": "CFM_066",
+        "name": "暗金教侍从",
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "flags": [],
+        "text": "战吼：\n在本回合中，你使用的下一个奥秘的法力值消耗为（1）点。",
+        "damaged": null,
+        "card_type": "MINION",
+        "card_class": "MAGE"
+       },
+       {
+        "card_id": "EX1_612o",
+        "name": "肯瑞托之力",
+        "cost": null,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "你的下一个奥秘的法力值消耗为（0）点。",
+        "damaged": null,
+        "card_type": "ENCHANTMENT",
+        "card_class": "MAGE"
+       }
+      ],
+      "secrets": 1,
+      "possible_secrets": []
+     },
+     "2": {
+      "name": "玩家2",
+      "health": 27,
+      "armor": 0,
+      "mana": 3,
+      "max_mana": 10,
+      "hand": {
+       "count": 5
+      },
+      "board": [
+       {
+        "card_id": "HERO_03a",
+        "name": "玛维·影歌",
+        "cost": null,
+        "attack": 0,
+        "health": 30,
+        "flags": [
+         "已尽"
+        ],
+        "text": "",
+        "damaged": 3,
+        "card_type": "HERO",
+        "card_class": "ROGUE"
+       },
+       {
+        "card_id": "CS2_083b_H1",
+        "name": "匕首精通",
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "flags": [],
+        "text": "英雄技能\n装备一把1/2的\n匕首。",
+        "damaged": null,
+        "card_type": "HERO_POWER",
+        "card_class": "ROGUE"
+       }
+      ],
+      "deck_count": 24,
+      "fatigue": 0,
+      "played_cards": [
+       {
+        "card_id": "CS2_082_H1",
+        "name": "邪恶短刀",
+        "cost": 1,
+        "attack": 1,
+        "health": null,
+        "flags": [],
+        "text": "",
+        "damaged": null,
+        "card_type": "WEAPON",
+        "card_class": "ROGUE"
+       }
+      ],
+      "secrets": 1,
+      "possible_secrets": []
+     }
+    }
+   },
+   "lethal": {
+    "available_damage": 0,
+    "lethal": false,
+    "detail": [],
+    "deficit": 27,
+    "taunt_blocked": false,
+    "taunt_cost": 0,
+    "opponent_fatigue_damage": null,
+    "summary": "本回合无确定直接伤害（场攻 0）。"
+   }
+  }
+ ],
+ "game_results": [
+  "loss",
+  "win"
+ ]
+}

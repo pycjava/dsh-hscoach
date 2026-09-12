@@ -1,0 +1,8 @@
+# dsh-hscoach bundle patch: Hearthstone coach host service.
+# 监听炉石 Power.log → 确定性核心（解析/触发/快照/斩杀）本地计算 →
+# 建议经宿主 agent（ctx.agents + structured_output）生成 → 原子写
+# advice.json / game_state.json / stats.json 供 NTEToolbox 悬浮窗消费。
+- insert:
+    - id: dsh-hscoach
+      name: dsh-hscoach
+      config: {}

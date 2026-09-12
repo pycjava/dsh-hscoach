@@ -1,0 +1,3 @@
+# pnpm 11+ 的构建脚本白名单（设置已从 package.json 的 pnpm 字段迁出）
+allowBuilds:
+  esbuild: true
