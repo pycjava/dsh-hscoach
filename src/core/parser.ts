@@ -591,13 +591,6 @@ export class GameParser {
     throw new GameExportError(`entity unresolved for ${_opcode}: ${token}`);
   }
 
-  private resolveRefForExport(ref: PlayerReference): number {
-    if (ref.entityId === null) {
-      throw new GameExportError(`entity id not available for player ${ref.name}`);
-    }
-    return ref.entityId;
-  }
-
   private requireCard(id: number, opcode: string): CardEntity {
     const entity = this.game?.findEntityById(id);
     if (!entity || !(entity instanceof CardEntity)) {

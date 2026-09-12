@@ -5,7 +5,6 @@
  */
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
@@ -47,7 +46,7 @@ class FakeTail {
 
 let dir: string;
 let ctx: StubContext;
-let providerCalls: number[];
+let providerCalls: import("./stubs/cordis.js").FakeAgent[];
 let releaseAdvice: (() => void) | null = null;
 let adviceGate: Promise<void>;
 
@@ -91,7 +90,7 @@ async function makeService(configOverrides: Partial<HsCoachPluginConfig> = {}) {
   return service;
 }
 
-async function command(service: HsCoachService, raw: string) {
+async function command(_service: HsCoachService, raw: string) {
   const cmd = ctx.commands.registrations.find((r) => r.name === "hscoach");
   if (!cmd) throw new Error("/hscoach 未注册");
   return cmd.handler({ rawInput: raw });
@@ -107,7 +106,7 @@ beforeEach(async () => {
   ctx = new StubContext();
   // 桩 agents：每次 create 模拟模型提交一条建议（工具注册在 agent 作用域上下文）
   ctx.agents.onCreate = (agent, agentCtx) => {
-    const call = providerCalls.push(agent) && providerCalls.length;
+    const call = providerCalls.push(agent);
     void (async () => {
       await adviceGate;
       const tool = agentCtx.tools.registered.find((t) => t["name"] === "structured_output");

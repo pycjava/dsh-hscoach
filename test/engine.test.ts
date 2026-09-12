@@ -3,7 +3,7 @@
  * 降级回显、再想想、战绩记录。
  */
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
@@ -11,7 +11,6 @@ import { CoachEngine, type AdviceProvider } from "../src/runtime/engine.js";
 import { CardDatabase } from "../src/core/cards.js";
 import type { GameSnapshot } from "../src/core/state.js";
 import type { Advice } from "../src/core/trigger.js";
-import { THINK_AGAIN_FILENAME } from "../src/core/trigger.js";
 
 const db = new CardDatabase([join(import.meta.dirname, "..", "..", "hscoach", "data")]);
 const fixture = () =>

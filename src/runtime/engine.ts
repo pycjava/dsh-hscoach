@@ -217,9 +217,17 @@ export class CoachEngine {
     const calibrated = calibrateFriendlyPlayer(game);
     if (calibrated === null) return;
     if (calibrated !== this.friendlyPlayerId) {
+      const previous = this.friendlyPlayerId;
       this.friendlyPlayerId = calibrated;
       this.detector.friendlyPlayerId = calibrated;
       this.resultDetector.friendlyPlayerId = calibrated;
+      if (this.friendlyExplicit) {
+        this.onEvent?.({
+          type: "advice-degraded",
+          turn: 0,
+          reason: `自动校准与配置的 friendlyPlayerId 冲突：${previous} → ${calibrated}（已按日志纠正）`,
+        });
+      }
       this.onEvent?.({ type: "calibrated", friendlyPlayerId: calibrated });
     }
   }

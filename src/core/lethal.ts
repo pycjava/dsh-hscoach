@@ -5,7 +5,7 @@
  * 冲锋随从，受法力预算与嘲讽阻挡模型约束），宁可漏报（LLM 补），
  * 绝不误报（谎报斩杀比漏报致命得多）。
  */
-import type { CardView, GameSnapshot, PlayerView } from "./state.js";
+import type { CardView, GameSnapshot } from "./state.js";
 
 const NON_ATTACKING_FLAGS = new Set(["已尽", "冻结", "无法攻击", "休眠"]);
 
