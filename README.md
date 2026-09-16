@@ -26,7 +26,7 @@ pnpm build
 pnpm run link-host
 
 # 装载到 profile（smoke 为验证用独立 profile，示例）
-dsh plugin --profile smoke add D:\NTEToolbox\dsh-hscoach
+dsh plugin --profile smoke add D:\dsh-hscoach
 
 # 测试（vitest 别名替换宿主包，不依赖链接）
 pnpm test
