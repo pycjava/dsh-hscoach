@@ -1,7 +1,7 @@
 /**
- * tag 解析：hslog utils.parse_tag 的 TS 移植。
+ * tag 解析。
  *
- * 语义对齐（对拍硬约束）：
+ * 语义（黄金快照硬约束）：
  * - 未知 tag 名 → 抛错（调用方按"跳过该行"处理，两侧一致）
  * - TAG_TYPES 命中值枚举（Zone/CardType/...）→ 十进制或枚举名
  * - TAG_TYPES 命中 Type.* 标量类型 → 仅十进制
@@ -41,9 +41,9 @@ export const ZONE = {
 
 const DECIMAL_RE = /^\d+$/;
 
-/** parse_tag 的 tag/value 双段解析；任何无法识别的组合都抛 ParseTagError。 */
+/** tag/value 双段解析；任何无法识别的组合都抛 ParseTagError。 */
 export function parseTag(tagName: string, value: string): [number, number] {
-  // parse_enum 语义：十进制直接转 int（真实日志存在数字 tag 名，如 tag=479）
+  // 十进制直接转 int（真实日志存在数字 tag 名，如 tag=479）
   const tag = DECIMAL_RE.test(tagName) ? Number(tagName) : GAME_TAG[tagName];
   if (tag === undefined) throw new ParseTagError(`unknown GameTag ${tagName}`);
   const enumName = TAG_TYPES[tag];

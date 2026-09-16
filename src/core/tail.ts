@@ -1,7 +1,7 @@
 /**
- * Power.log tail：hscoach/log_config.py tail_power_log 的 TS 移植。
+ * Power.log tail。
  *
- * 健壮性要点（对齐 Python 踩坑修复）：
+ * 健壮性要点：
  * - 每次轮询重解析路径：国服每次启动新建 Logs/<时间戳>/ 目录
  * - 文件轮换检测：创建时间变化或大小倒退 → 从头读
  * - 启动时文件已存在 → 从末尾 tail（不重放历史对局）；

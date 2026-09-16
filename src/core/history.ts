@@ -1,5 +1,5 @@
 /**
- * 对局结果与战绩统计：hscoach/history.py 的 TS 移植。
+ * 对局结果与战绩统计。
  *
  * PLAYSTATE 终局值写在玩家实体上（PlayerOne/PlayerTwo/数字 id/国服昵称），
  * 按友方实体取值；每局只记一次；history.jsonl 追加 + stats.json 原子重写。
@@ -105,7 +105,7 @@ export interface HistoryEntry {
   turns: number;
 }
 
-/** 本地时间 ISO（秒精度，无时区后缀）——与 Python datetime.now().isoformat(timespec="seconds") 一致。 */
+/** 本地时间 ISO（秒精度，无时区后缀）。 */
 export function localIsoSeconds(date = new Date()): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return (

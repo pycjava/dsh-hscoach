@@ -1,8 +1,8 @@
 /**
- * 状态序列化：hscoach/state.py 的 TS 移植（含 D9 合法信息过滤）。
+ * 状态序列化（含合法可见信息过滤）。
  *
- * D9 是硬约束（代码级断言）：对手手牌只暴露数量，绝不暴露具体卡牌——
- * 带.CardID 的对手手牌实体直接拒绝序列化（fail loud）。这一层是整个
+ * 隐藏信息是硬约束（代码级断言）：对手手牌只暴露数量，绝不暴露具体卡牌——
+ * 带 CardID 的对手手牌实体直接拒绝序列化（fail loud）。这一层是整个
  * 教练的合规底线，agentic 工具层（tools/）也只暴露本层产物。
  */
 import type { CardDatabase } from "./cards.js";
@@ -18,7 +18,7 @@ const CARD_TYPE_NAMES: Record<number, string> = Object.fromEntries(
   Object.entries(VALUE_ENUMS.CardType ?? {}).map(([name, value]) => [value, name]),
 );
 
-/** 关键词 flags（与 Python _FLAG_TAGS 一致，顺序影响展示）。 */
+/** 关键词 flags（顺序影响展示）。 */
 const FLAG_TAGS: Array<[string, number]> = [
   ["嘲讽", GAME_TAG_VALUE("TAUNT")],
   ["圣盾", GAME_TAG_VALUE("DIVINE_SHIELD")],
@@ -57,7 +57,7 @@ export interface PlayerView {
   armor: number;
   mana: number;
   maxMana: number;
-  /** 己方是列表；对手是数量（D9）。 */
+  /** 己方是列表；对手是数量（隐藏信息约束）。 */
   hand: CardView[] | { count: number };
   board: CardView[];
   deckCount: number;
@@ -73,8 +73,8 @@ export interface GameSnapshot {
   players: Record<string, PlayerView>;
 }
 
-/** D9 违规：对手手牌实体带 CardID，拒绝序列化。 */
-export class D9ViolationError extends Error {}
+/** 隐藏信息违规：对手手牌实体带 CardID，拒绝序列化。 */
+export class HiddenInfoViolationError extends Error {}
 
 function extractFlags(tags: Map<number, number>): string[] {
   const flags: string[] = [];
@@ -142,7 +142,7 @@ export function detectFriendlyPlayerId(game: GameEntityModel): number | null {
   return candidates.length === 1 ? candidates[0] : null;
 }
 
-/** hslog FriendlyPlayerExporter 的内联结果 + 启发式兜底（hscoach 校准序）。 */
+/** 友方检测：首个手牌 SHOW_ENTITY 的控制者 + 启发式兜底。 */
 export function calibrateFriendlyPlayer(game: GameEntityModel): number | null {
   if (game.friendlyPlayerByShow !== null) return game.friendlyPlayerByShow;
   return detectFriendlyPlayerId(game);
@@ -184,7 +184,7 @@ export function serializeGame(
         hero = entityToCardView(heroEntity, db);
         const entHp = heroEntity.tags.get(TAG.HEALTH);
         if (entHp !== undefined) {
-          // 英雄血量以实体 tag 为准（可为 0，不再兜底——与 Python 一致）
+          // 英雄血量以实体 tag 为准（可为 0，不兜底）
           health = entHp - (heroEntity.tags.get(TAG.DAMAGE) ?? 0);
         }
       }
@@ -235,7 +235,7 @@ export function serializeGame(
   return { turn, currentPlayerId, players: playersView };
 }
 
-/** Python 的 `or 默认值` 语义：undefined/0 都回退默认。 */
+/** 0 视同未设置，回退默认值。 */
 function nonzero(value: number | undefined, fallback: number): number {
   return value ? value : fallback;
 }
@@ -244,21 +244,21 @@ function playerName(player: PlayerEntity, pid: number): string {
   return player.name ?? `玩家${pid}`;
 }
 
-/** D9 代码级防线：对手手牌实体带 CardID → 拒绝输出。 */
+/** 隐藏信息代码级防线：对手手牌实体带 CardID → 拒绝输出。 */
 function assertNoOpponentHandLeak(
   entities: Array<{ id: number; cardId?: string | null }>,
   playerId: number,
 ): void {
   for (const entity of entities) {
     if (entity.cardId) {
-      throw new D9ViolationError(
-        `D9 违规：玩家 ${playerId}（对手）的手牌实体 ${entity.id} 带 CardID=${JSON.stringify(entity.cardId)}，隐藏信息可能泄露。拒绝序列化。`,
+      throw new HiddenInfoViolationError(
+        `隐藏信息违规：玩家 ${playerId}（对手）的手牌实体 ${entity.id} 带 CardID=${JSON.stringify(entity.cardId)}，隐藏信息可能泄露。拒绝序列化。`,
       );
     }
   }
 }
 
-// ── 发布契约（snake_case，与 Python to_dict / Tauri 前端逐字段一致） ─────
+// ── 发布契约（snake_case，与 Tauri 前端逐字段一致） ─────
 
 export interface CardViewContract {
   card_id: string | null;
@@ -286,7 +286,7 @@ export interface PlayerViewContract {
   played_cards: CardViewContract[];
   secrets: number;
   possible_secrets: string[];
-  /** 发布层注入（publish_game_state）——契约键与 Python 一致。 */
+  /** 发布层注入（publishGameState）的契约键。 */
   draw_odds?: { one_copy_next_draw: number; two_copy_next_draw: number };
 }
 

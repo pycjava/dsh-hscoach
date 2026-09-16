@@ -1,11 +1,9 @@
 /**
- * 卡牌知识库：hscoach/cards.py 的 TS 移植。
- *
- * 数据复用 hscoach/data 下已内置的 HearthstoneJSON 简中卡库
+ * 卡牌知识库：内置 HearthstoneJSON 简中卡库
  * （cards.all.zhCN.json 全卡 + cards.zhCN.json 收集卡，收集卡优先覆盖）。
- * 查询纯内存、离线可用；本插件不再有下载路径（内置即离线，提交 5e33570）。
+ * 查询纯内存、离线可用，无下载路径。
  */
-import { readdir, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -121,18 +119,4 @@ function loadEntry(map: Map<string, Card>, entry: RawCard): void {
     cardClass: entry.cardClass ?? "",
     cardSet: entry.set ?? "",
   });
-}
-
-/** 调试/测试用：确认数据目录可见。 */
-export async function listDataFiles(dirs: string[] = defaultDataDirs()): Promise<string[]> {
-  const out: string[] = [];
-  for (const dir of dirs) {
-    if (!existsSync(dir)) continue;
-    try {
-      out.push(...(await readdir(dir)).filter((f) => f.endsWith(".json")));
-    } catch {
-      // ignore
-    }
-  }
-  return out;
 }

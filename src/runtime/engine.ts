@@ -1,13 +1,12 @@
 /**
- * 教练引擎：hscoach/__main__.py log_worker 的 TS 移植（编排核心）。
+ * 教练引擎（编排核心）。
  *
  * 职责：批处理日志行 → 增量触发/终局检测 → 全量解析（触发窗口）→
- * 友方校准 → D9 序列化 → 建议生成（AdviceProvider 注入，agentic 或测试桩）
- * → 原子发布 advice.json / game_state.json / stats.json。
+ * 友方校准 → 合法可见序列化 → 建议生成（AdviceProvider 注入，agentic
+ * 或测试桩）→ 原子发布 advice.json / game_state.json / stats.json。
  *
  * 并发模型：Node 单线程 + 代数计数实现 latest-wins——新回合到达时，
- * 尚未发布的旧建议作废（不堆积过时请求）。Python 的
- * AdviceDispatcher worker 线程在这里天然消解。
+ * 尚未发布的旧建议作废（不堆积过时请求）。
  */
 import { CardDatabase } from "../core/cards.js";
 import { GameResultDetector, recordResult, type HistoryStats } from "../core/history.js";
@@ -26,7 +25,7 @@ import {
   type Advice,
 } from "../core/trigger.js";
 
-/** 建议生成器抽象：dsh agentic 实现 / 测试桩二选一（Q9b/Q15a）。 */
+/** 建议生成器抽象：dsh agentic 实现 / 测试桩二选一。 */
 export interface AdviceProvider {
   generate(input: {
     snapshot: GameSnapshot;
@@ -158,7 +157,7 @@ export class CoachEngine {
       try {
         await this.handleTriggeredTurn(turn);
       } catch (error) {
-        // D9 违规等：跳过该回合，不中断引擎
+        // 隐藏信息违规等：跳过该回合，不中断引擎
         this.onEvent?.({ type: "advice-degraded", turn, reason: String(error) });
       }
     }
@@ -174,12 +173,12 @@ export class CoachEngine {
           this.onEvent?.({ type: "state-published", turn: snapshot.turn });
         }
       } catch {
-        // 快照失败不致命（如校准前的 D9 断言）
+        // 快照失败不致命（如校准前的隐藏信息断言）
       }
     }
   }
 
-  /** 触发窗口全量解析 → 校准 → D9 序列化 → 新回合判定 → 提交建议。 */
+  /** 触发窗口全量解析 → 校准 → 合法可见序列化 → 新回合判定 → 提交建议。 */
   private async handleTriggeredTurn(turn: number): Promise<void> {
     const snapshot = this.parseAndSerialize(this.detector.getTriggerWindow(turn));
     if (!snapshot) return;
@@ -187,8 +186,8 @@ export class CoachEngine {
       return;
     }
     this.lastTriggeredTurn = snapshot.turn;
-    // 慢路径 fire-and-forget（Python AdviceDispatcher 同构）：LLM 慢
-    // 不反噬日志读取；发布前经代数校验实现 latest-wins。
+    // 慢路径 fire-and-forget：LLM 慢不反噬日志读取；发布前经代数校验
+    // 实现 latest-wins。
     const run = this.submitAdvice(snapshot)
       .catch((error) => {
         this.onEvent?.({
@@ -249,7 +248,7 @@ export class CoachEngine {
         generation,
       });
     } catch (error) {
-      // Q14a 降级：优先回显上一回合建议，其次诚实占位（发布同样串行化）
+      // 降级：优先回显上一回合建议，其次诚实占位（发布同样串行化）
       const fallback: Advice = this.lastAdvice
         ? { ...this.lastAdvice, degraded: true }
         : { ...degradedPlaceholder(String(error)) };
@@ -331,7 +330,7 @@ function safeLethal(snapshot: GameSnapshot, friendlyPlayerId: number): LethalChe
   try {
     return computeLethal(snapshot, friendlyPlayerId);
   } catch {
-    // 斩杀计算失败不阻断建议生成（Python 侧 lethal=None 同义）
+    // 斩杀计算失败不阻断建议生成
     return null;
   }
 }

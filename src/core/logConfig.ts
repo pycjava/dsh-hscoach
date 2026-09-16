@@ -1,8 +1,8 @@
 /**
- * 炉石日志杂务：hscoach/log_config.py 的 TS 移植。
+ * 炉石日志杂务。
  *
  * - 找安装目录：常见候选 → 注册表 InstallLocation 兜底（reg query 子进程，
- *   零 npm 依赖；对应 Python 的 winreg 兜底，提交 d8faf32）
+ *   零 npm 依赖）
  * - 写 log.config（HDT 标准内容，备份后覆盖，支持一键回滚）
  * - 解析 Power.log 路径：国服安装目录 Logs/时间戳子目录/ 取最新，
  *   全球版 LocalAppData

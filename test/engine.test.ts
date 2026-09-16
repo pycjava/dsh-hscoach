@@ -86,7 +86,7 @@ describe("CoachEngine", () => {
     expect(advice.advice).toMatchObject({ kind: "play" });
     const state = JSON.parse(await readFile(join(dir, "game_state.json"), "utf-8"));
     expect(state).toMatchObject({ friendly_player_id: 1 });
-    expect(state.players["2"].hand).toEqual({ count: expect.any(Number) }); // D9
+    expect(state.players["2"].hand).toEqual({ count: expect.any(Number) }); // 隐藏信息：对手手牌只有数量
     // 战绩（fixture 是败局）
     const stats = JSON.parse(await readFile(join(dir, "stats.json"), "utf-8"));
     expect(stats).toMatchObject({ total: 1, losses: 1 });

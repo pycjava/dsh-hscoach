@@ -1,10 +1,9 @@
 /**
- * 回合触发器 + 建议发布：hscoach/trigger.py 的 TS 移植。
+ * 回合触发器 + 建议发布。
  *
  * 增量检测（正则扫原始行）+ 触发窗口截取（同批后续回合的行不污染快照）
  * + advice.json/game_state.json 原子发布（契约与 Tauri 侧轮询一致）。
- * 并发模型变化：Python 的 latest-wins 单槽队列 + worker 线程在 Node 事件
- * 循环里天然成立（引擎层用代数计数实现"新请求覆盖未启动的旧请求"）。
+ * latest-wins（"新请求覆盖未启动的旧请求"）由引擎层代数计数实现。
  */
 import { join } from "node:path";
 import { atomicWriteJson, localIsoSeconds } from "./history.js";
@@ -119,7 +118,7 @@ export class IncrementalTurnDetector {
   }
 }
 
-/** 建议数据契约（advice.json 的 advice 字段；与 Python Advice.to_dict 一致）。 */
+/** 建议数据契约（advice.json 的 advice 字段）。 */
 export interface Advice {
   kind: "play" | "trade" | "pass" | "uncertain";
   headline: string;

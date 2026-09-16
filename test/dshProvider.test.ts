@@ -181,7 +181,7 @@ describe("DshAgentAdviceProvider", () => {
     expect(cancelledAgent!.cancelled).toBe("hscoach watchdog");
   });
 
-  it("user prompt 含局面与斩杀评估，且不含对手手牌明细（D9）", () => {
+  it("user prompt 含局面与斩杀评估，且不含对手手牌明细（隐藏信息）", () => {
     const { snapshot, friendly } = fixtureSnapshot();
     const user = buildUserPrompt(snapshotToContract(snapshot), friendly, computeLethal(snapshot, friendly));
     expect(user).toContain("=== 当前回合");

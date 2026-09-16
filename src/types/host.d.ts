@@ -1,7 +1,7 @@
 /**
  * dsh 宿主包的环境类型声明（rc 未发布 .d.ts，按已核验的 rc.6 接口手写）。
  * 运行时这些模块由 dsh profile 的 node_modules 解析；测试用
- * test/stubs/*.ts 替换。接口升级时同步更新此文件与 DSH_CAPS 文档。
+ * test/stubs/*.ts 替换。dsh 接口升级时对照宿主更新此文件。
  */
 
 declare module "@deepseek-ai/cordis" {

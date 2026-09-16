@@ -1,7 +1,7 @@
 /**
- * dsh agentic 建议生成器（Q9b）：ctx.agents.create + agent 作用域工具 +
- * structured_output 结构化收尾 + 15s watchdog（Q14a：dsh 无内置步数/超时
- * 上限，插件自管）。失败抛 ProviderError，由引擎降级（上回合建议回显）。
+ * dsh agentic 建议生成器：ctx.agents.create + agent 作用域工具 +
+ * structured_output 结构化收尾 + watchdog（dsh 无内置步数/超时上限，
+ * 插件自管）。失败抛 ProviderError，由引擎降级（上回合建议回显）。
  */
 import { randomUUID } from "node:crypto";
 import type { AgentsService, AgentDefaultModelService, Context } from "@deepseek-ai/cordis";

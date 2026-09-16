@@ -1,15 +1,14 @@
 /**
- * Power.log 解析器：hslog（parser.py + export.py EntityTreeExporter）的
- * TS 单遍移植。Python 侧"先建包树、后导出"两遍在这里合并为一遍——
- * 导出顺序与解析顺序同为深度优先，实体语义等价（设计决策 Q6/Q10）。
+ * Power.log 解析器：单遍解析 + 实体树构建（解析顺序与导出顺序同为
+ * 深度优先，实体语义与黄金快照一致）。
  *
- * 对拍硬约束（test/parity.test.ts 对照 Python 黄金快照）：
+ * 行为约束（test/parity.test.ts 黄金快照钉死）：
  * - 每局独立解析（CREATE_GAME 边界；玩家 id 跨局会重排）
  * - 坏行：跳过计数，不影响后续行（skippedLines，行级错误）
  * - 导出级错误（CHANGE_ENTITY 无原卡 / 操作指向未建实体 / 玩家引用
- *   无实体 id）：整局丢弃（skippedGames，与 Python export() 抛出一致）
+ *   无实体 id）：整局丢弃（skippedGames）
  * - 只处理 GameState.DebugPrintPower / GameState.DebugPrintGame；
- *   PowerTaskList.* 是重复流，无回调天然忽略（国服修复的语义）
+ *   PowerTaskList.* 是重复流，无回调天然忽略（国服日志的语义）
  */
 import {
   CardEntity,
@@ -24,7 +23,7 @@ import { TAG, parseTag } from "./tags.js";
 const GAME_ENTITY = "GameEntity";
 const UNKNOWN_HUMAN_PLAYER = "UNKNOWN HUMAN PLAYER";
 
-// hslog tokens.py 的正则（锚点与分组语义保持一致）
+// Power.log 行格式正则（锚点与分组语义是黄金快照行为的一部分，勿随意改）
 const _E = `(${GAME_ENTITY}|${UNKNOWN_HUMAN_PLAYER}|\\[.+\\]|\\d+|.+)`;
 const TIMESTAMP_RE = /^([DWE]) ([\d:.]+) (.+)$/;
 const POWERLOG_LINE_RE = /^([^(]+)\(\) - (.+)$/;
@@ -70,9 +69,9 @@ const CHOSEN_ENTITIES_RE = new RegExp(`^Entities\\[(\\d+)\\]=${_E}$`);
 
 export interface ParseResult {
   games: GameEntityModel[];
-  /** 行级错误数（Python：read_line 抛异常被逐行捕获）。 */
+  /** 坏行计数（跳过，不影响后续行）。 */
   skippedLines: number;
-  /** 整局丢弃数（Python：export() 抛异常被捕获）。 */
+  /** 整局丢弃数。 */
   skippedGames: number;
 }
 
@@ -81,13 +80,13 @@ export class LineError extends Error {}
 /** 导出级错误：整局丢弃。 */
 export { GameExportError };
 
-/** 真实 Power.log 行带 "[Power] " 频道前缀，hslog 期望剥离后的格式。 */
+/** 真实 Power.log 行带 "[Power] " 频道前缀，解析前剥离。 */
 export function stripPowerPrefix(line: string): string {
   const idx = line.indexOf("[Power] ");
   return idx >= 0 ? line.slice(idx + "[Power] ".length) : line;
 }
 
-/** hslog 可解析的 CREATE_GAME 对局边界（国服修复：PowerTaskList 重复行不算）。 */
+/** CREATE_GAME 对局边界（只认 GameState 频道；国服 PowerTaskList 重复行不算）。 */
 export function isCreateGameLine(line: string): boolean {
   return line.includes("CREATE_GAME") && line.includes("GameState.DebugPrintPower");
 }
@@ -108,16 +107,15 @@ export class GameParser {
   private pendingTags: Array<[number, number]> = [];
   private blockDepth = 0;
   private creatingGame = false;
-  /** FriendlyPlayerExporter 内联状态。 */
+  /** 友方玩家内联检测状态。 */
   private readonly controllerMap = new Map<number, number>();
   private aiPlayerId: number | null = null;
   private nonAiPlayerIds: number[] = [];
   private friendlyResolved = false;
   /**
    * TAG_CHANGE 的延迟应用（有序队列）：实体令牌是尚未解析的玩家引用时，
-   * Python 的包对象持有共享可变引用、导出晚于解析——引用获得实体 id 的
-   * 时刻（ENTITY_ID tag / player_id 合并）按队列顺序回放，局末仍未解析
-   * 则整局丢弃（MissingPlayerData 同义）。
+   * 引用获得实体 id 的时刻（ENTITY_ID tag / player_id 合并）按队列顺序
+   * 回放，局末仍未解析则整局丢弃。
    */
   private readonly deferredTagChanges: Array<{
     ref: PlayerReference;
@@ -419,7 +417,7 @@ export class GameParser {
         return;
       }
       if (existing && existing !== this.game) {
-        // Player 实体上 FULL_ENTITY：Python 导出时 AttributeError → 丢局
+        // Player 实体上 FULL_ENTITY：整局丢弃
         throw new GameExportError(`FULL_ENTITY on non-card entity ${entityId}`);
       }
       const card = new CardEntity(entityId, cardId, new Map());
@@ -466,7 +464,7 @@ export class GameParser {
   }
 
   private handleBlockStart(opcode: string, data: string): void {
-    // Python 的正则阶梯：SubOption 形态 → 常规形态 → 旧格式兜底
+    // 正则阶梯：SubOption 形态 → 常规形态 → 旧格式兜底
     let m: RegExpExecArray | null;
     let typeIndex: number;
     if (data.includes(" SubOption=")) {
@@ -497,7 +495,7 @@ export class GameParser {
     const [tag, value] = parseTag(m[2], m[3]);
 
     if (token === "-1") {
-      // Python：entity=None 走到导出时 TypeError → 整局丢弃
+      // entity=-1 无法落到具体实体：整局丢弃
       throw new GameExportError("TAG_CHANGE entity -1");
     }
     const id = this.parseEntityId(token);
@@ -580,8 +578,8 @@ export class GameParser {
   }
 
   /**
-   * SHOW/HIDE/CHANGE/FULL-Updating 用 parse_entity_id：名字令牌解析不出
-   * → Python 导出 EntityNotFound → 丢局。
+   * SHOW/HIDE/CHANGE/FULL-Updating 的实体解析：名字令牌解析不出
+   * → 整局丢弃。
    */
   private resolveEntityToken(token: string, _opcode: string): number {
     if (/^\d+$/.test(token)) return Number(token);
@@ -599,7 +597,7 @@ export class GameParser {
     return entity;
   }
 
-  /** CREATE_GAME 后首个 FULL_ENTITY 前必须有 ≥2 玩家（hslog ParsingError → 跳行）。 */
+  /** CREATE_GAME 后首个 FULL_ENTITY 前必须有 ≥2 玩家，否则跳行。 */
   private checkFirstFullEntity(): void {
     if (this.creatingGame) {
       this.creatingGame = false;
@@ -648,8 +646,8 @@ export class GameParser {
       }
       const zone = tags.find(([t]) => t === TAG.ZONE)?.[1];
       if (zone === 3 /* Zone.HAND */ && !this.friendlyResolved) {
-        // 首个手牌 SHOW_ENTITY 的控制者即友方；无控制者 → KeyError →
-        // Python 回退启发式（保持 null 交给 detectFriendlyPlayerId）
+        // 首个手牌 SHOW_ENTITY 的控制者即友方；无控制者时保持
+        // null，交给 detectFriendlyPlayerId 启发式兜底
         const friendly = this.controllerMap.get(pending.card.id);
         if (friendly !== undefined) this.tryResolveFriendly(friendly);
       }

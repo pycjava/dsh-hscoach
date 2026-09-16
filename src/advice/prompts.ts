@@ -1,8 +1,7 @@
 /**
- * 教练 prompt：hscoach/coach.py 的 get_system_prompt / build_user_prompt
- * 的 TS 移植（Q10b：prompt 构建整体搬到 TS，Python 版退役前以此为唯一源）。
+ * 教练 prompt：get_system_prompt / build_user_prompt。
  *
- * 九条铁律与三种教练模式逐字保留——这是建议质量与 JSON 契约稳定的根基。
+ * 九条铁律与三种教练模式是建议质量与 JSON 契约稳定的根基，改动需谨慎。
  */
 import type { LethalCheck } from "../core/lethal.js";
 import type { SnapshotContract } from "../core/state.js";

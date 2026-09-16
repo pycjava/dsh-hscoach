@@ -1,9 +1,6 @@
 /**
- * 实体模型：hearthstone.entities 的 TS 移植（只保留教练消费的字段）。
- *
- * 对齐说明：initial_card_id / initial_creator / known_starting_deck 等
- * hscoach 从不消费的字段未移植；GAME_RESET 只重置 card_id/revealed
- * （与 Card.reset() 一致）。
+ * 实体模型：对局实体树（游戏/玩家/卡牌），只保留教练消费的字段。
+ * GAME_RESET 只重置 card_id/revealed。
  */
 import { TAG, ZONE } from "./tags.js";
 
@@ -83,7 +80,7 @@ export class GameEntityModel {
   readonly tags: Tags = new Map();
   readonly players: PlayerEntity[] = [];
   readonly entities = new Map<number, CardEntity | PlayerEntity | GameEntityModel>();
-  /** FriendlyPlayerExporter 的内联结果（首个手牌 SHOW_ENTITY 的控制者）。 */
+  /** 友方玩家检测的内联结果（首个手牌 SHOW_ENTITY 的控制者）。 */
   friendlyPlayerByShow: number | null = null;
 
   constructor(id: number) {
@@ -117,7 +114,7 @@ export class GameEntityModel {
   }
 }
 
-/** 导出级错误：Python 侧 packet_tree.export() 抛出 → 整局丢弃。 */
+/** 导出级错误：对局数据不完整时整局丢弃。 */
 export class GameExportError extends Error {}
 
 function mergeTags(target: Tags, source: Tags): void {

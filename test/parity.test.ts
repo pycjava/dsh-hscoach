@@ -1,10 +1,9 @@
 /**
- * 对拍验收（Q16 硬门槛）：TS 确定性核心 vs Python 黄金快照逐字段比对。
+ * 回归钉（黄金快照逐字段比对）。
  *
- * 黄金快照为迁移期由 Python 实现（已删除）生成的冻结基准：
- * TS 核心自此成为唯一事实源，本测试作为行为回归钉。
- * 两份 fixture：外服标准日志（15 触发回合）+ 国服格式双局日志
- * （含 PowerTaskList 重复 CREATE_GAME、中文战网昵称映射等坑）。
+ * 黄金快照为冻结基准：TS 核心是唯一实现，本测试钉死确定性核心的
+ * 行为不回归。两份 fixture：外服标准日志（15 触发回合）+ 国服格式双局
+ * 日志（含 PowerTaskList 重复 CREATE_GAME、中文战网昵称映射等坑）。
  */
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -36,7 +35,7 @@ interface GoldenFile {
 
 const db = new CardDatabase([join(HERE, "..", "data")]);
 
-/** 与黄金生成器完全一致的管线（批处理边界逐行对齐）。 */
+/** 与黄金快照生成时完全一致的管线（批处理边界逐行对齐）。 */
 function runPipeline(lines: string[]) {
   const detector = new IncrementalTurnDetector(1, false);
   let friendlyPlayerId = 1;
@@ -76,7 +75,7 @@ describe.each([
   ["friendly_player_id_is_1.power", "外服标准日志"],
   ["cn_server_two_games.power", "国服格式日志"],
 ])("对拍：%s（%s）", (stem) => {
-  it("快照/斩杀/触发回合/终局与 Python 黄金逐字段一致", async () => {
+  it("快照/斩杀/触发回合/终局与黄金快照逐字段一致", async () => {
     await db.build();
     const golden = JSON.parse(
       readFileSync(join(GOLDEN, `${stem}.golden.json`), "utf-8"),

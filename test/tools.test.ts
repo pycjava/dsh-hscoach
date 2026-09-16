@@ -1,5 +1,5 @@
 /**
- * 工具层功能测试：D9 不变量（工具从构造上不可能泄露对手手牌）+
+ * 工具层功能测试：隐藏信息不变量（工具从构造上不可能泄露对手手牌）+
  * 三个工具的行为正确性。
  */
 import { describe, expect, it } from "vitest";
@@ -64,7 +64,7 @@ function fakeSnapshot(): GameSnapshot {
         armor: 2,
         mana: 5,
         maxMana: 5,
-        hand: { count: 7 }, // D9：对手手牌只有数量
+        hand: { count: 7 }, // 隐藏信息约束：对手手牌只有数量
         board: [],
         deckCount: 22,
         fatigue: 0,
@@ -79,7 +79,7 @@ function fakeSnapshot(): GameSnapshot {
 const deps = { db: fakeDb([FIREBALL]), snapshot: fakeSnapshot(), friendlyPlayerId: 1, publishDir: "/tmp/x" };
 
 describe("工具层", () => {
-  it("D9 不变量：全部工具的输出序列化后不含任何对手手牌卡牌对象", async () => {
+  it("隐藏信息不变量：全部工具的输出序列化后不含任何对手手牌卡牌对象", async () => {
     for (const tool of buildCoachTools(deps)) {
       const args = tool.name === "hs_card_lookup" ? { query: "火球" } : tool.name === "hs_draw_odds" ? { copies: 2 } : {};
       const result = await tool.execute(args, {

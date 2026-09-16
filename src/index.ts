@@ -1,11 +1,11 @@
 /**
  * dsh-hscoach 插件入口（cordis Service）。
  *
- * 职责组合（Q8a：插件掌管生命周期，NTEToolbox 只读发布文件）：
+ * 职责组合（插件掌管生命周期，NTEToolbox 只读发布文件）：
  * - 启动时：构建卡牌库 → 尽力开启炉石日志 → 启动 Power.log tail 引擎
  * - /hscoach 命令：status/start/stop/think/mode/restore-log
- * - "再想想"反通道：watch 发布目录的 think-again.trigger 文件（Q20a）
- * - 配置（Q21b）：静态项走 cordis.patch.yml；运行时开关走命令
+ * - "再想想"反通道：watch 发布目录的 think-again.trigger 文件
+ * - 配置：静态项走 cordis.patch.yml；运行时开关走命令
  */
 import { join } from "node:path";
 import { existsSync, statSync, unlinkSync } from "node:fs";
@@ -24,9 +24,9 @@ import { aggregate } from "./core/history.js";
 
 export const name = "dsh-hscoach";
 
-/** 插件配置（Q21b：cordis.patch.yml 的 config 键编辑）。 */
+/** 插件配置（cordis.patch.yml 的 config 键编辑）。 */
 export const Config = z.object({
-  /** 发布目录；空串 = %LOCALAPPDATA%\NTEToolbox\hscoach（与 Tauri 契约一致）。 */
+  /** 发布目录；空串 = %LOCALAPPDATA%\com.ntetoolbox.client\hscoach（与 Tauri 契约一致）。 */
   publishDir: z.string().default(""),
   /** 友方玩家 id；不填 = 日志自动校准（推荐）。 */
   friendlyPlayerId: z.number().step(1).min(1).max(2),
@@ -36,9 +36,9 @@ export const Config = z.object({
   model: z.string().default(""),
   /** 推理力度；教练要低延迟，默认 off（宿主全局可能是 max）。 */
   reasoningEffort: z.string().default("off"),
-  /** 建议生成 watchdog（Q14a）。 */
+  /** 建议生成 watchdog。 */
   adviceTimeoutMs: z.number().step(1).min(1000).default(15000),
-  /** 卡牌库数据目录；空串 = 自动探测（包 data/ → 仓库 hscoach/data）。 */
+  /** 卡牌库数据目录；空串 = 自动探测（包 data/）。 */
   cardDataDir: z.string().default(""),
   /** dsh 启动后自动开始监听。 */
   autoStart: z.boolean().default(true),
