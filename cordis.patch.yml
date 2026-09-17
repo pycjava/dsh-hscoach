@@ -1,7 +1,8 @@
 # dsh-hscoach bundle patch: Hearthstone coach host service.
 # 监听炉石 Power.log → 确定性核心（解析/触发/快照/斩杀）本地计算 →
-# 建议经宿主 agent（ctx.agents + structured_output）生成 → 原子写
-# advice.json / game_state.json / stats.json 供 NTEToolbox 悬浮窗消费。
+# 建议经直连 DeepSeek 兼容 API（单次 chat + JSON 输出，不经宿主 agents
+# 服务）生成 → 原子写 advice.json / game_state.json / stats.json 供
+# NTEToolbox 悬浮窗消费。插件运行期零 @deepseek-ai/* 依赖。
 - insert:
     - id: dsh-hscoach
       name: dsh-hscoach

@@ -1,7 +1,7 @@
 {
   "name": "dsh-hscoach",
-  "version": "0.1.0",
-  "description": "Hearthstone coach for DeepSeek Harness: watches Power.log, computes legal game snapshots, and asks the host agent for turn advice.",
+  "version": "0.2.0",
+  "description": "Hearthstone coach for DeepSeek Harness: watches Power.log, computes legal game snapshots, and generates turn advice via direct LLM API calls (self-contained plugin, zero runtime host-package dependencies).",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -10,14 +10,14 @@
   },
   "files": [
     "lib",
+    "data",
     "cordis.patch.yml",
     "README.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
-    "check": "tsc --noEmit -p tsconfig.json",
-    "link-host": "node scripts/link-host.mjs"
+    "check": "tsc --noEmit -p tsconfig.json"
   },
   "engines": {
     "node": ">=22"

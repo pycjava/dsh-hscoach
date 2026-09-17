@@ -45,33 +45,6 @@ export function getSystemPrompt(mode?: string): string {
   );
 }
 
-/** structured_output 工具的参数 schema（dsh-tools 支持的 JSON Schema 子集）。 */
-export const ADVICE_JSON_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    kind: { type: "string", enum: ["play", "trade", "pass", "uncertain"] },
-    headline: { type: "string", description: "一句话主推荐" },
-    why: { type: "string", description: "1-2 句理由" },
-    steps: { type: "array", items: { type: "string" }, description: "执行步骤（可空）" },
-    warning: { type: "string", description: "注意事项或风险（可空）" },
-    alternatives: {
-      type: "array",
-      description: "仅 uncertain 时提供 2-3 个候选打法",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          headline: { type: "string" },
-          why: { type: "string" },
-        },
-        required: ["headline", "why"],
-      },
-    },
-  },
-  required: ["kind", "headline", "why"],
-} as const;
-
 function formatBoard(cards: SnapshotContract["players"][string]["board"]): string[] {
   if (!cards || cards.length === 0) return ["  （空场）"];
   return cards.map((c) => {

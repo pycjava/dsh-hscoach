@@ -1,8 +1,10 @@
 /**
- * dsh-hscoach 插件入口（cordis Service）。
+ * dsh-hscoach 插件入口（自包含 cordis 函数插件，运行期零 @deepseek-ai/*
+ * 依赖——宿主 import 全部为 `import type`，编译后擦除）。
  *
  * 职责组合（插件掌管生命周期，NTEToolbox 只读发布文件）：
  * - 启动时：构建卡牌库 → 尽力开启炉石日志 → 启动 Power.log tail 引擎
+ * - 建议生成：直连 DeepSeek 兼容 API（不经宿主 agents 服务，任何 profile 可跑）
  * - /hscoach 命令：status/start/stop/think/mode/restore-log
  * - "再想想"反通道：watch 发布目录的 think-again.trigger 文件
  * - 配置：静态项走 cordis.patch.yml；运行时开关走命令
@@ -11,49 +13,62 @@ import { join } from "node:path";
 import { existsSync, statSync, unlinkSync } from "node:fs";
 import { homedir } from "node:os";
 import { readFile } from "node:fs/promises";
-import { Service, type Context } from "@deepseek-ai/cordis";
-import z from "@deepseek-ai/schemastery";
+import type { Context } from "@deepseek-ai/cordis";
 import { CardDatabase, defaultDataDirs } from "./core/cards.js";
 import { ensureLogConfig, powerLogPath, restoreLogConfig } from "./core/logConfig.js";
+import type { LogConfigStatus } from "./core/logConfig.js";
 import { PowerLogTail } from "./core/tail.js";
 import { ADVICE_FILENAME, THINK_AGAIN_FILENAME } from "./core/trigger.js";
 import { CoachEngine, type AdviceProvider, type EngineEvent } from "./runtime/engine.js";
-import { DshAgentAdviceProvider } from "./advice/dshProvider.js";
-import { DEFAULT_COACH_MODE } from "./advice/prompts.js";
+import { DirectApiAdviceProvider } from "./advice/directProvider.js";
+import { COACH_MODES, DEFAULT_COACH_MODE } from "./advice/prompts.js";
 import { aggregate } from "./core/history.js";
 
-export const name = "dsh-hscoach";
-
-/** 插件配置（cordis.patch.yml 的 config 键编辑）。 */
-export const Config = z.object({
-  /** 发布目录；空串 = %LOCALAPPDATA%\com.ntetoolbox.client\hscoach（与 Tauri 契约一致）。 */
-  publishDir: z.string().default(""),
-  /** 友方玩家 id；不填 = 日志自动校准（推荐）。 */
-  friendlyPlayerId: z.number().step(1).min(1).max(2),
-  coachMode: z.string().default(DEFAULT_COACH_MODE),
-  /** 模型路由覆盖；空串 = 跟随宿主 agent-default-model。 */
-  provider: z.string().default(""),
-  model: z.string().default(""),
-  /** 推理力度；教练要低延迟，默认 off（宿主全局可能是 max）。 */
-  reasoningEffort: z.string().default("off"),
-  /** 建议生成 watchdog。 */
-  adviceTimeoutMs: z.number().step(1).min(1000).default(15000),
-  /** 卡牌库数据目录；空串 = 自动探测（包 data/）。 */
-  cardDataDir: z.string().default(""),
-  /** dsh 启动后自动开始监听。 */
-  autoStart: z.boolean().default(true),
-});
+/** API 根地址默认值（DeepSeek 官方；/v1 等兼容端点经 config.baseURL 配置）。 */
+export const DEFAULT_BASE_URL = "https://api.deepseek.com";
+/** 模型默认值（低延迟对话模型；教练对推理深度不敏感）。 */
+export const DEFAULT_MODEL = "deepseek-chat";
+/** 建议生成 watchdog 默认上限（毫秒）。 */
+export const DEFAULT_ADVICE_TIMEOUT_MS = 15_000;
 
 export interface HsCoachPluginConfig {
   publishDir: string;
   friendlyPlayerId?: number;
   coachMode: string;
-  provider: string;
+  /** DeepSeek 兼容 API key；空串 = 环境变量 DEEPSEEK_API_KEY。 */
+  apiKey: string;
+  /** API 根地址；空串 = 环境变量 DEEPSEEK_BASE_URL 或官方默认。 */
+  baseURL: string;
+  /** 模型；空串 = deepseek-chat。 */
   model: string;
-  reasoningEffort: string;
+  /** 建议生成 watchdog（毫秒）。 */
   adviceTimeoutMs: number;
+  /** 卡牌库数据目录；空串 = 自动探测（包 data/）。 */
   cardDataDir: string;
+  /** dsh 启动后自动开始监听。 */
   autoStart: boolean;
+}
+
+/**
+ * 显式配置解析（cordis.patch.yml 的 config 键 > 环境变量 > 默认值）。
+ * config 是原始 JSON 对象，默认值与类型粗化集中在此。
+ */
+export function resolveConfig(raw: Record<string, unknown> = {}): HsCoachPluginConfig {
+  const str = (value: unknown): string => (typeof value === "string" ? value : "");
+  const num = (value: unknown): number | undefined =>
+    typeof value === "number" && Number.isFinite(value) ? value : undefined;
+  const coachMode = str(raw.coachMode) || DEFAULT_COACH_MODE;
+  return {
+    publishDir: str(raw.publishDir),
+    friendlyPlayerId: num(raw.friendlyPlayerId),
+    coachMode: coachMode in COACH_MODES ? coachMode : DEFAULT_COACH_MODE,
+    apiKey: str(raw.apiKey) || process.env.DEEPSEEK_API_KEY || "",
+    baseURL: str(raw.baseURL) || process.env.DEEPSEEK_BASE_URL || DEFAULT_BASE_URL,
+    model: str(raw.model) || DEFAULT_MODEL,
+    adviceTimeoutMs: num(raw.adviceTimeoutMs) ?? DEFAULT_ADVICE_TIMEOUT_MS,
+    cardDataDir: str(raw.cardDataDir),
+    autoStart: raw.autoStart === undefined ? true : raw.autoStart === true,
+  };
 }
 
 /**
@@ -71,44 +86,50 @@ export function resolvePublishDir(configured: string): string {
 
 /**
  * 可注入的运行时编排（测试与真实宿主共用）。
- * realRuntimeDeps 用真实文件系统；测试构造 fake。
+ * realRuntimeDeps 用真实文件系统与全局定时器；测试构造 fake。
  */
 export interface RuntimeDeps {
   resolveLogPath(): Promise<string>;
   tail: new (options: import("./core/tail.js").TailOptions) => PowerLogTail;
   /** log.config 开启（测试注入桩，避免碰真实炉石配置）。 */
-  ensureLogConfig(): Promise<import("./core/logConfig.js").LogConfigStatus>;
-  now(): number;
+  ensureLogConfig(): Promise<LogConfigStatus>;
+  /** 建议生成的 HTTP 实现；缺省 = 全局 fetch。 */
+  fetch?: typeof fetch;
+  /** 轮询定时器（返回清理函数）。 */
+  setInterval(callback: () => void, ms: number): () => void;
 }
 
 export const realRuntimeDeps: RuntimeDeps = {
   resolveLogPath: () => powerLogPath(),
   tail: PowerLogTail,
   ensureLogConfig,
-  now: () => Date.now(),
+  setInterval: (callback, ms) => {
+    const handle = setInterval(callback, ms);
+    return () => clearInterval(handle);
+  },
 };
 
-export class HsCoachService extends Service {
-  /** timer：ctx.setInterval（cordis-plugin-timer）需显式声明注入。 */
-  static inject = ["agents", "agentDefaultModel", "timer"];
-  static Config = Config;
-
-  private readonly cfg: HsCoachPluginConfig;
+/**
+ * 教练编排主体（普通类，不提供 cordis 服务——无外部消费者）。
+ * 由默认导出的插件函数装配，生命周期经 ctx.effect 挂钩。
+ */
+export class HsCoachPlugin {
   private engine: CoachEngine | null = null;
   private db: CardDatabase | null = null;
   private tail: PowerLogTail | null = null;
   private stopped = false;
   private running = false;
   private thinkAgainMtime = 0;
-  private thinkAgainPoll?: () => void;
+  private stopThinkAgainPoll?: () => void;
   private readonly events: string[] = [];
 
-  constructor(ctx: Context, config: HsCoachPluginConfig, private readonly deps: RuntimeDeps = realRuntimeDeps) {
-    super(ctx, "hsCoach");
-    this.cfg = config;
-  }
+  constructor(
+    private readonly ctx: Context,
+    private readonly cfg: HsCoachPluginConfig,
+    private readonly deps: RuntimeDeps = realRuntimeDeps,
+  ) {}
 
-  async [Service.init](): Promise<void> {
+  async init(): Promise<void> {
     const publishDir = resolvePublishDir(this.cfg.publishDir);
 
     // 卡牌库（离线，内置数据）
@@ -118,15 +139,18 @@ export class HsCoachService extends Service {
     await this.db.build();
     this.ctx.logger.info(`dsh-hscoach: 卡牌库就绪（${this.db.size} 张）→ ${publishDir}`);
 
-    const provider: AdviceProvider = new DshAgentAdviceProvider({
-      agents: this.ctx.agents!,
-      defaultModel: this.ctx.agentDefaultModel!,
-      db: this.db,
-      publishDir,
-      providerOverride: this.cfg.provider,
-      modelOverride: this.cfg.model,
-      reasoningEffort: this.cfg.reasoningEffort,
+    if (!this.cfg.apiKey) {
+      this.ctx.logger.warn(
+        "dsh-hscoach: 未配置 API key（config.apiKey 或环境变量 DEEPSEEK_API_KEY）——建议生成将降级",
+      );
+    }
+
+    const provider: AdviceProvider = new DirectApiAdviceProvider({
+      baseURL: this.cfg.baseURL,
+      apiKey: this.cfg.apiKey,
+      model: this.cfg.model,
       timeoutMs: this.cfg.adviceTimeoutMs,
+      fetchImpl: this.deps.fetch,
     });
 
     this.engine = new CoachEngine({
@@ -152,7 +176,7 @@ export class HsCoachService extends Service {
     });
 
     // "再想想"反通道：轮询触发文件（Tauri 按钮写入）
-    this.thinkAgainPoll = this.ctx.setInterval(() => this.pollThinkAgain(), 1000);
+    this.stopThinkAgainPoll = this.deps.setInterval(() => this.pollThinkAgain(), 1000);
 
     this.ctx.effect(() => () => this.shutdown(), "dsh-hscoach: shutdown");
 
@@ -234,6 +258,7 @@ export class HsCoachService extends Service {
       `监听：${this.running ? "运行中" : "已停止"}`,
       `发布目录：${publishDir}`,
       `卡牌库：${this.db?.size ?? 0} 张`,
+      `模型：${this.cfg.model}（${this.cfg.baseURL}）`,
       `教练模式：${this.cfg.coachMode}`,
       `友方 id：${this.engine?.getFriendlyPlayerId() ?? "自动校准"}`,
     ];
@@ -291,7 +316,7 @@ export class HsCoachService extends Service {
   private async shutdown(): Promise<void> {
     this.stopped = true;
     await this.shutdownTail();
-    this.thinkAgainPoll?.();
+    this.stopThinkAgainPoll?.();
     // 清理可能残留的触发文件
     const trigger = join(resolvePublishDir(this.cfg.publishDir), THINK_AGAIN_FILENAME);
     try {
@@ -325,6 +350,18 @@ export class HsCoachService extends Service {
   }
 }
 
-/** cordis 插件导出形态与 dsh-git-tree 参考插件一致：
- * loader 取 default 导出（Service 类是函数，cordis registry 直接接受）。 */
-export default HsCoachService;
+/**
+ * cordis 函数插件：loader 取 default 导出直接交给 registry（函数插件是
+ * cordis 的一等形态）。宿主类型仅 `import type`，运行期零宿主包依赖。
+ */
+const hscoach: (ctx: Context, config: Record<string, unknown>) => Promise<void> = async (
+  ctx,
+  config,
+) => {
+  const plugin = new HsCoachPlugin(ctx, resolveConfig(config));
+  await plugin.init();
+};
+// Plugin.Base.name 元数据（fiber 诊断显示名）；函数 name 只读，经 defineProperty 赋值
+Object.defineProperty(hscoach, "name", { value: "dsh-hscoach" });
+
+export default hscoach;
